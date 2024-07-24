@@ -2,11 +2,6 @@ from rest_framework import serializers
 from ..models import Carlist, Showroomlist
 
 
-class ShowroomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Showroomlist
-        fields = "__all__"
-
 
 class CarSerializer(serializers.ModelSerializer):
     discounted_price = serializers.SerializerMethodField()
@@ -14,7 +9,29 @@ class CarSerializer(serializers.ModelSerializer):
         model = Carlist
         fields = "__all__" #get all of the fields, if you want to be specific write the names of the fields in the model in a list
         # exclude = ['name'] #write name of the fields that you want to exclude
+            
+    def get_discounted_price(self, object):
+        discountprice = object.price - 5000
+        return discountprice
     
+    def validate_price(self,value):
+        if value<=20000.00:
+            raise serializers.ValidationError("Price should be greater than 20000.00")
+        return value
+    
+    def validate(self,data):
+        if data['name'] == data['description']:
+            raise serializers.ValidationError("Name and description should not be the same")
+        return data
+    
+    
+class ShowroomSerializer(serializers.ModelSerializer):
+    Showrooms = CarSerializer(many=True,read_only=True)
+    class Meta:
+        model = Showroomlist
+        fields = "__all__"
+        
+        
     # id = serializers.IntegerField(read_only=True)
     # name = serializers.CharField()
     # description = serializers.CharField()
@@ -34,18 +51,3 @@ class CarSerializer(serializers.ModelSerializer):
     #     instance.price = validated_data.get('price',instance.price)
     #     instance.save()
     #     return instance
-        
-    def get_discounted_price(self, object):
-        discountprice = object.price - 5000
-        return discountprice
-    
-    def validate_price(self,value):
-        if value<=20000.00:
-            raise serializers.ValidationError("Price should be greater than 20000.00")
-        return value
-    
-    def validate(self,data):
-        if data['name'] == data['description']:
-            raise serializers.ValidationError("Name and description should not be the same")
-        return data
-    

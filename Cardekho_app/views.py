@@ -36,7 +36,7 @@ class showroom_details(APIView):
             showroom_details = Showroomlist.objects.get(pk=pk)
         except Showroomlist.DoesNotExist:
             return Response({"Error":"Showroom Not Found"},status=status.HTTP_404_NOT_FOUND)
-        serializer = CarSerializer(showroom_details, data=request.data)
+        serializer = ShowroomSerializer(showroom_details, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
