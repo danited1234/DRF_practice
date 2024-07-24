@@ -21,24 +21,31 @@ class showroom_view(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# def car_list_view(request):
-#     cars = Carlist.objects.all()
-#     data = {
-#         'cars':list(cars.values())
-#     }
+class showroom_details(APIView):
     
-#     return JsonResponse(data)
-
-
-# def car_detail_view(request,pk):
-#     car = Carlist.objects.get(pk=pk)
-#     data = {
-#         'car': car.name,
-#         'description': car.description,
-#         'active': car.active
-#     }
+    def get(self,request,pk):
+        try:
+            showroom = Showroomlist.objects.get(pk=pk)
+        except Showroomlist.DoesNotExist:
+            return Response({"Error":"Showroom Not Found"},status=status.HTTP_404_NOT_FOUND)
+        serializer = ShowroomSerializer(showroom)
+        return Response(serializer.data)
     
-#     return JsonResponse(data)
+    def put(self,request,pk):
+        try:
+            showroom_details = Showroomlist.objects.get(pk=pk)
+        except Showroomlist.DoesNotExist:
+            return Response({"Error":"Showroom Not Found"},status=status.HTTP_404_NOT_FOUND)
+        serializer = CarSerializer(showroom_details, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request,pk):
+        showroom = Carlist.objects.get(pk=pk)
+        showroom.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['GET', 'POST'])
 def car_list_view(request):
@@ -75,3 +82,23 @@ def car_detail_view(request,pk):
         car.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
             
+            
+            
+# def car_list_view(request):
+#     cars = Carlist.objects.all()
+#     data = {
+#         'cars':list(cars.values())
+#     }
+    
+#     return JsonResponse(data)
+
+
+# def car_detail_view(request,pk):
+#     car = Carlist.objects.get(pk=pk)
+#     data = {
+#         'car': car.name,
+#         'description': car.description,
+#         'active': car.active
+#     }
+    
+#     return JsonResponse(data)
